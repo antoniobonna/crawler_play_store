@@ -9,28 +9,41 @@ from Naked.toolshed.shell import muterun_js
 import csv
 #import demjson
 import sys
-from datetime import datetime
+from datetime import datetime,date
 import os
+import psycopg2
+import credentials
+from subprocess import call
 
 #### definicoes de variaveis
-indir = '/home/postgres/scripts/crawler_play_store/'
+indir = '/home/ubuntu/scripts/crawler_play_store/'
 google_scraper_model = 'google_scraper_model.js'
 google_scraper = 'google_scraper.js'
-outdir = '/home/postgres/scripts/crawler_play_store/csv/'
+outdir = '/home/ubuntu/scripts/crawler_play_store/csv/'
 csvfile = 'reviews.csv'
-# appId = 'br.com.intermedium'
-# bank = 'INTER'
-filelist = 'lista_bancos.txt'
-banks = [line.strip() for line in open(indir+filelist, 'r')]
+tablename = 'google_play.reviews_stg'
+current_date = str(date.today())
+
+DATABASE, HOST, USER, PASSWORD = credentials.setDatabaseLogin()
+
+### conecta no banco de dados
+db_conn = psycopg2.connect("dbname='{}' user='{}' host='{}' password='{}'".format(DATABASE, USER, HOST, PASSWORD))
+cursor = db_conn.cursor()
+print('Connected to the database')
+query = 'SELECT app_id, empresa FROM google_play_dw.app'
+cursor.execute(query)
+banks = [item for item in cursor.fetchall()] ### pega todos os bancos e ids cadastrados no bd
+cursor.close()
+db_conn.close()
 
 indexes = ('id','userName','date','score','text','replyDate','replyText')
 
 ### funcao para parser a data no formato do banco de dados
 def parse_data(data):
-    year  = data[:10]
-    time = data[11:-1]
-    return year + ' ' + time
-    #return str(datetime.strptime(data.split(' GMT')[0], "%a %b %d %Y %H:%M:%S"))
+    # year  = data[:10]
+    # time = data[11:-1]
+    # return year + ' ' + time
+    return str(datetime.strptime(data.split(' GMT')[0], "%a %b %d %Y %H:%M:%S"))
 
 ### funcao para parsear os comentarios e coloca-los em um array
 def parse_result(result):
@@ -41,7 +54,8 @@ def parse_result(result):
     data = data.replace('},','}|#|').split('|#|') ### coloca strings em arrays
     return data
 
-def parse_csv(bank):
+def parse_csv(bank,appid):
+    print('\nParsing {}...'.format(bank))
     new_date = date_aux = ''
     response = muterun_js(indir+google_scraper) ### executa o node.js
     if response.exitcode == 0:
@@ -63,21 +77,39 @@ def parse_csv(bank):
                     if dict['replyDate']:
                         dict['replyDate'] = parse_data(dict['replyDate'])
                     line = [str(dict[k]).replace('null','') for k in list(dict.keys()) if k in indexes]
-                    line.append(bank)
+                    line.insert(0,bank)
+                    line.insert(0,appid)
                     writer.writerow(line)
                 except:
                     print(row)
                     pass
     else:
-        sys.stderr.write(response.stderr)
-        print('erro')
+        #sys.stderr.write(response.stderr)
+        print('Error')
 
-### itera sobre otod os bancos da lista
+### itera sobre os apps cadastrados
 for bank in banks:
-    bank,appid = bank.split(';') ### recebe o id no Google Play
+    appid,bank = bank ### recebe o id no Google Play
     with open(indir+google_scraper_model, 'r') as ifile:
         with open(indir+google_scraper, 'w') as ofile: ### carrega id no Node.js
             text = ifile.read()
             ofile.write(text.replace('{}',appid))
-    parse_csv(bank)
-    o.remove(indir+google_scraper)
+    parse_csv(bank,appid)
+    os.remove(indir+google_scraper)
+
+### conecta no banco de dados
+db_conn = psycopg2.connect("dbname='{}' user='{}' host='{}' password='{}'".format(DATABASE, USER, HOST, PASSWORD))
+cursor = db_conn.cursor()
+print('Connected to the database')
+### copy
+with open(outdir+csvfile, 'r') as ifile:
+    SQL_STATEMENT = "COPY %s FROM STDIN WITH CSV DELIMITER AS ';' NULL AS ''"
+    print("Executing Copy in "+tablename)
+    cursor.copy_expert(sql=SQL_STATEMENT % tablename, file=ifile)
+    db_conn.commit()
+cursor.close()
+db_conn.close()
+os.remove(outdir+csvfile)
+
+### VACUUM ANALYZE
+call('psql -d torkcapital -c "VACUUM VERBOSE ANALYZE '+tablename+'";',shell=True)
