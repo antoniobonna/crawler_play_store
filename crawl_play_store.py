@@ -9,7 +9,7 @@ from Naked.toolshed.shell import muterun_js
 import csv
 #import demjson
 import sys
-from datetime import datetime,date
+from datetime import datetime,date,timedelta
 import os
 import psycopg2
 import credentials
@@ -23,6 +23,7 @@ outdir = '/home/ubuntu/scripts/crawler_play_store/csv/'
 csvfile = 'reviews.csv'
 tablename = 'google_play.reviews_stg'
 current_date = str(date.today())
+yesterday = str(date.today() - timedelta(days = 2))
 
 DATABASE, HOST, USER, PASSWORD = credentials.setDatabaseLogin()
 
@@ -56,7 +57,7 @@ def parse_result(result):
 
 def parse_csv(bank,appid):
     print('\nParsing {}...'.format(bank))
-    new_date = date_aux = ''
+    # new_date = date_aux = ''
     response = muterun_js(indir+google_scraper) ### executa o node.js
     if response.exitcode == 0:
         result = response.stdout ### pega saida do shell
@@ -69,17 +70,22 @@ def parse_csv(bank,appid):
                     dict = eval(row) ### coloca row em um dicionario
                     dict['date'] = parse_data(dict['date'])
                     new_date = dict['date'][:10]
-                    if new_date != date_aux:
-                        date_aux = new_date
-                        print('Current date: '+date_aux)
-                    dict['replyDate'] = str(dict['replyDate']).replace('null','')
-                    dict['text'] = dict['text'].encode('latin-1', 'ignore').decode('latin-1').strip()
-                    if dict['replyDate']:
-                        dict['replyDate'] = parse_data(dict['replyDate'])
-                    line = [str(dict[k]).replace('null','') for k in list(dict.keys()) if k in indexes]
-                    line.insert(0,bank)
-                    line.insert(0,appid)
-                    writer.writerow(line)
+                    if new_date == current_date:
+                        pass
+                    elif new_date <= yesterday:
+                        break
+                    else:
+                        # if new_date != date_aux:
+                            # date_aux = new_date
+                            # print('Current date: '+date_aux)
+                        dict['replyDate'] = str(dict['replyDate']).replace('null','')
+                        dict['text'] = dict['text'].encode('latin-1', 'ignore').decode('latin-1').strip()
+                        if dict['replyDate']:
+                            dict['replyDate'] = parse_data(dict['replyDate'])
+                        line = [str(dict[k]).replace('null','') for k in list(dict.keys()) if k in indexes]
+                        line.insert(0,bank)
+                        line.insert(0,appid)
+                        writer.writerow(line)
                 except:
                     print(row)
                     pass
@@ -112,4 +118,4 @@ db_conn.close()
 os.remove(outdir+csvfile)
 
 ### VACUUM ANALYZE
-call('psql -d torkcapital -c "VACUUM VERBOSE ANALYZE '+tablename+'";',shell=True)
+call('psql -d torkcapital -c "VACUUM ANALYZE '+tablename+'";',shell=True)

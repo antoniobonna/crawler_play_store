@@ -66,7 +66,7 @@ cursor = db_conn.cursor()
 print('Connected to the database')
 ### copy
 with open(outdir+csvfile, 'r') as ifile:
-    SQL_STATEMENT = "COPY %s(app_id,empresa,score,reviews,instalacoes,ultima_atualizacao) FROM STDIN WITH CSV DELIMITER AS ';' NULL AS ''"
+    SQL_STATEMENT = "COPY %s(app_id,empresa,score,reviews,downloads,ultima_atualizacao) FROM STDIN WITH CSV DELIMITER AS ';' NULL AS ''"
     print("Executing Copy in "+tablename)
     cursor.copy_expert(sql=SQL_STATEMENT % tablename, file=ifile)
     db_conn.commit()
@@ -75,4 +75,4 @@ db_conn.close()
 os.remove(outdir+csvfile)
 
 ### VACUUM ANALYZE
-call('psql -d torkcapital -c "VACUUM VERBOSE ANALYZE '+tablename+'";',shell=True)
+call('psql -d torkcapital -c "VACUUM ANALYZE '+tablename+'";',shell=True)

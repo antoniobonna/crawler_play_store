@@ -5,7 +5,7 @@ util.inspect.defaultOptions.maxArrayLength = null;
 
 gplay.reviews({
    appId: '{}',
-   num: 10000,
+   num: 4000,
    lang: 'pt_BR',
    sort: gplay.sort.NEWEST
 }).then(console.dir,console.dir)
