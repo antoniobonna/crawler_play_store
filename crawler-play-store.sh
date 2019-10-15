@@ -6,6 +6,7 @@ DIR="/home/ubuntu/scripts/crawler_play_store"
 DUMP="/home/ubuntu/scripts/dump"
 STARTDATE=$(date +'%F %T')
 SCRIPTNAME="crawler-play-store.sh"
+BOT="bot_message.py"
 
 horario()
 {
@@ -39,6 +40,8 @@ LoadHist()
 	echo -e "$(horario): Tabela $TABLE transferida para dados historicos.\n-\n"
 }
 export -f LoadHist
+
+python ${DIR}/${BOT} "START"
 
 ### Carrega arquivos nas tabelas staging
 
@@ -75,5 +78,7 @@ ENDDATE=$(date +'%F %T')
 echo "$SCRIPTNAME;$STARTDATE;$ENDDATE" >> $LOG
 
 echo -e "$(horario):Fim da execucao.\n"
+
+python ${DIR}/${BOT} "END"
 
 exit 0

@@ -49,7 +49,8 @@ VACUUM ANALYZE google_play_dw.data_resposta;
 COPY(
 SELECT DISTINCT resposta
 	FROM google_play.reviews_stg WHERE not resposta is null
-	AND resposta NOT IN (SELECT DISTINCT resposta FROM google_play_dw.resposta)
+EXCEPT
+SELECT resposta FROM google_play_dw.resposta
 ) to '/home/ubuntu/dump/resposta.txt';
 COPY google_play_dw.resposta(resposta) FROM '/home/ubuntu/dump/resposta.txt';
 
@@ -64,7 +65,8 @@ VACUUM ANALYZE google_play_dw.resposta;
 COPY(
 SELECT DISTINCT user_id, usuario
 	FROM google_play.reviews_stg WHERE not usuario is null
-	AND user_id NOT IN (SELECT DISTINCT user_id FROM google_play_dw.usuario)
+EXCEPT 
+SELECT user_id,usuario FROM google_play_dw.usuario
 ) to '/home/ubuntu/dump/usuario.txt';
 COPY google_play_dw.usuario FROM '/home/ubuntu/dump/usuario.txt';
 

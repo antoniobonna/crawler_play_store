@@ -21,4 +21,4 @@ SELECT d.dia, a.app_id, f.score, f.reviews, f.downloads, f.ultima_atualizacao
 	JOIN google_play_dw.data_visao_geral d ON d.dia=f.data
 	JOIN google_play_dw.app a ON a.app_id=f.app_id;
 
-VACUUM ANALYZE google_play_dw.data_visao_geral;
+VACUUM ANALYZE google_play_dw.visao_geral;

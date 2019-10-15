@@ -25,7 +25,7 @@ DATABASE, HOST, USER, PASSWORD = credentials.setDatabaseLogin()
 db_conn = psycopg2.connect("dbname='{}' user='{}' host='{}' password='{}'".format(DATABASE, USER, HOST, PASSWORD))
 cursor = db_conn.cursor()
 print('Connected to the database')
-query = 'SELECT app_id, empresa FROM google_play_dw.app'
+query = """SELECT app_id, empresa FROM google_play_dw.app"""
 cursor.execute(query)
 banks = [item for item in cursor.fetchall()] ### pega todos os bancos e ids cadastrados no bd
 cursor.close()
@@ -75,4 +75,4 @@ db_conn.close()
 os.remove(outdir+csvfile)
 
 ### VACUUM ANALYZE
-call('psql -d torkcapital -c "VACUUM ANALYZE '+tablename+'";',shell=True)
+call('psql -d torkcapital -c "VACUUM VERBOSE ANALYZE '+tablename+'";',shell=True)
