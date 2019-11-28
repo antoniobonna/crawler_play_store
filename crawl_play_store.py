@@ -68,7 +68,11 @@ def parse_csv(bank,appid):
                 try:
                     #print(row)
                     dict = eval(row) ### coloca row em um dicionario
-                    dict['date'] = parse_data(dict['date'])
+                    try:
+                        date = parse_data(dict['date'])
+                    except:
+                        pass
+                    dict['date'] = date
                     new_date = dict['date'][:10]
                     if new_date == current_date:
                         pass

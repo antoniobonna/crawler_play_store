@@ -3,7 +3,7 @@
 ### Definicao de variaveis
 LOG="/var/log/scripts/scripts.log"
 DIR="/home/ubuntu/scripts/crawler_play_store"
-DUMP="/home/ubuntu/scripts/dump"
+DUMP="/home/ubuntu/dump"
 STARTDATE=$(date +'%F %T')
 SCRIPTNAME="crawler-play-store.sh"
 BOT="bot_message.py"
@@ -52,7 +52,7 @@ for FILE in $ListaArquivos; do
 	stagingDados $FILE
 done
 
-### Carrega dados no DW
+## Carrega dados no DW
 
 echo -e "$(horario): Inicio da carga no DW.\n-\n"
 
