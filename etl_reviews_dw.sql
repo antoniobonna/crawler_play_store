@@ -34,8 +34,7 @@ VACUUM ANALYZE google_play_dw.data_comentario;
 
 INSERT INTO google_play_dw.data_resposta
 SELECT distinct data_resposta, date(data_resposta), date_part('week', data_resposta),date_part('month', data_resposta),date_part('year', data_resposta)
-	FROM google_play.reviews_stg WHERE not resposta is null
-	AND data_resposta NOT IN (SELECT DISTINCT datetime_resposta FROM google_play_dw.data_resposta)
+	FROM (SELECT data_resposta FROM google_play.reviews_stg WHERE not resposta is null EXCEPT SELECT datetime_resposta FROM google_play_dw.data_resposta) a
 	ORDER BY 1;
 
 VACUUM ANALYZE google_play_dw.data_resposta;
@@ -47,7 +46,7 @@ VACUUM ANALYZE google_play_dw.data_resposta;
 \! echo "Carregando dados na tabela resposta..."
 
 COPY(
-SELECT a.data_resposta, a.resposta FROM google_play.reviews_stg a JOIN
+SELECT distinct a.data_resposta, a.resposta FROM google_play.reviews_stg a JOIN
 (SELECT DISTINCT resposta
 	FROM google_play.reviews_stg WHERE not usuario is null
 EXCEPT

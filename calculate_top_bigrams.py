@@ -39,7 +39,7 @@ outdir = '/home/ubuntu/scripts/crawler_play_store/csv/'
 file = 'bigram.csv'
 query_app = "SELECT app_id FROM google_play_dw.app"
 query_company = 'SELECT empresa FROM google_play_dw.app'
-query_data = "SELECT DISTINCT semana,ano FROM google_play_dw.vw_reviews WHERE app_id = '{}' ORDER BY 2,1"
+query_data = "SELECT DISTINCT semana,ano FROM google_play_dw.vw_reviews WHERE app_id = '{}' AND semana !=  date_part('week',current_date) ORDER BY 2,1"
 query_comentario = "SELECT comentario FROM google_play_dw.vw_reviews WHERE app_id = '{}' AND ano = {} AND semana = {}"
 tablename = 'google_play_dw.bigrams'
 
