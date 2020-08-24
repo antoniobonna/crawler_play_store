@@ -44,7 +44,7 @@ def parse_data(data):
     # year  = data[:10]
     # time = data[11:-1]
     # return year + ' ' + time
-    return str(datetime.strptime(data.split(' GMT')[0], "%a %b %d %Y %H:%M:%S"))
+    return str(datetime.strptime(data.split(' GMT')[0], "%a %b %d %Y %H:%M:%S"))[:10]
 
 ### funcao para parsear os comentarios e coloca-los em um array
 def parse_result(result):
@@ -73,10 +73,9 @@ def parse_csv(bank,appid):
                     except:
                         pass
                     dict['date'] = date
-                    new_date = dict['date'][:10]
-                    if new_date == current_date:
+                    if date == current_date:
                         pass
-                    elif new_date <= yesterday:
+                    elif date <= yesterday:
                         break
                     else:
                         # if new_date != date_aux:

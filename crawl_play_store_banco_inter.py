@@ -18,11 +18,11 @@ from subprocess import call
 #### definicoes de variaveis
 indir = '/home/ubuntu/scripts/crawler_play_store/'
 google_scraper_model = 'google_scraper_model_bancointer.js'
-google_scraper = 'google_scraper_brokers.js'
+google_scraper = 'google_scraper_healthcare.js'
 outdir = '/home/ubuntu/scripts/crawler_play_store/csv/'
-csvfile = 'reviews_brokers.csv'
+csvfile = 'reviews_healthcare.csv'
 tablename = 'google_play.reviews_stg'
-current_date = '2019-12-20'
+current_date = '2020-01-10'
 
 DATABASE, HOST, USER, PASSWORD = credentials.setDatabaseLogin()
 
@@ -30,7 +30,7 @@ DATABASE, HOST, USER, PASSWORD = credentials.setDatabaseLogin()
 db_conn = psycopg2.connect("dbname='{}' user='{}' host='{}' password='{}'".format(DATABASE, USER, HOST, PASSWORD))
 cursor = db_conn.cursor()
 print('Connected to the database')
-query = """SELECT app_id, empresa FROM google_play_dw.app WHERE empresa in ('GENIAL','BTG PACTUAL','RICO','XP INVESTIMENTOS','ORAMA','EASYNVEST','CLEAR','PI INVESTIMENTOS')"""
+query = """SELECT app_id, empresa FROM google_play_dw.app WHERE empresa in ('SULAMÉRICA','AMIL','NOTREDAME INTERMÉDICA','UNIMED','BRADESCO SAÚDE','HAPVIDA','FLEURY','HERMES PARDINI','LOCALIZA','UNIDAS','TOYOTA MOBILITY SERVICES','MOOBIE','ZAZCAR','CABIFY','99','UBER','RENTCARS','MOVIDA','UNIP','UNINOVE','ESTACIO','KROTON','ANIMA','AFYA','SER EDUCACIONAL')"""
 cursor.execute(query)
 banks = [item for item in cursor.fetchall()] ### pega todos os bancos e ids cadastrados no bd
 cursor.close()

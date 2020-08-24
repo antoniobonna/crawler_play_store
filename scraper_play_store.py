@@ -52,7 +52,7 @@ def parse_csv(bank,appid):
             row = [appid,bank,score,reviews,installs,updated]
             writer.writerow(row)
         except:
-            print('APP não encontrado!')
+            print('{} - APP não encontrado!'.format(appid))
             pass
 
 ### itera sobre os apps cadastrados

@@ -50,11 +50,11 @@ with open(outdir+file,'w', newline="\n", encoding="utf-8") as ofile:
     cursor.execute(query_app)
     apps = [item[0] for item in cursor.fetchall()]
     for app in apps:
-        print('Parsing '+app+'...')
-        cursor.execute(query_data.format(app))
-        datas = [item for item in cursor.fetchall()]
-        for mes,ano in [datas[-1]]:
-            try:
+        try:
+            print('Parsing '+app+'...')
+            cursor.execute(query_data.format(app))
+            datas = [item for item in cursor.fetchall()]
+            for mes,ano in [datas[-1]]:
                 print('Ano: {} - Mês: {}'.format(ano,mes))
                 cursor.execute(query_comentario.format(app,ano,mes))
                 comments = [str(item[0]) for item in cursor.fetchall()]
@@ -72,8 +72,8 @@ with open(outdir+file,'w', newline="\n", encoding="utf-8") as ofile:
                     if trigram and count > 1:
                         trigram = '_'.join(trigram)
                         writer.writerow([app,ano,mes,trigram.rstrip('_'),count])
-            except:
-                pass
+        except:
+            pass
 
 ## copy
 with open(outdir+file, 'r') as ifile:
